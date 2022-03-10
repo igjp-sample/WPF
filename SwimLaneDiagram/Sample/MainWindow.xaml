@@ -1,0 +1,143 @@
+﻿<Window xmlns:ig="http://schemas.infragistics.com/xaml"  x:Class="Sample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
+        xmlns:local="clr-namespace:Sample"
+                xmlns:con="clr-namespace:Sample.Converter"
+                xmlns:models="clr-namespace:Sample.Models"
+        xmlns:vm="clr-namespace:Sample.ViewModels"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="900">
+    <Window.DataContext>
+        <vm:NodeLineViewModel ></vm:NodeLineViewModel>
+    </Window.DataContext>
+    <Grid>
+        <Grid.Resources>
+            <con:FillConverter x:Key="FillConverter" />
+            <con:StrokeConverter x:Key="StrokeConverter" />
+
+            <GeometryGroup x:Key="DB"  FillRule="Nonzero">
+                <RectangleGeometry  Rect="0,0,150,80" RadiusX="120" RadiusY="15"  />
+                <RectangleGeometry  Rect="0,0,150,30" RadiusX="120" RadiusY="15"  />
+            </GeometryGroup>
+
+            <DataTemplate x:Key="NodeDisplayTemplate">
+                <UserControl Padding="12,12,12,0" VerticalContentAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Title}"></TextBlock>
+                </UserControl>
+
+            </DataTemplate>
+
+            <DataTemplate x:Key="NodeEditTemplate">
+                <UserControl Padding="12,12,12,0" VerticalContentAlignment="Center">
+                    <TextBox HorizontalAlignment="Center" VerticalAlignment="Center"  Text="{Binding Title}"></TextBox>
+                </UserControl>
+
+            </DataTemplate>
+
+            <Style x:Key="NodeStyle" TargetType="{x:Type ig:DiagramNode}">
+                <Setter Property="DisplayTemplate" Value="{StaticResource NodeDisplayTemplate}" />
+                <Setter Property="EditTemplate" Value="{StaticResource NodeEditTemplate}" />
+                <Setter Property="Geometry" Value="{StaticResource DB}" />
+                <Setter Property="Position" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.MyPosition}" />
+                <Setter Property="Fill" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.NodeType, Converter={StaticResource FillConverter}}" />
+                <Setter Property="Stroke" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.NodeType, Converter={StaticResource StrokeConverter}}" />
+            </Style>
+
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBox x:Name="txtLog" IsReadOnly="true" Height="40" TextWrapping="Wrap"></TextBox>
+        </StackPanel>
+
+        <!-- 高さは固定にした方が良い  -->
+        <Grid Grid.Row="1"  Height="520" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="200"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Grid >
+                <Grid.RowDefinitions>
+                    <RowDefinition ></RowDefinition>
+                    <RowDefinition ></RowDefinition>
+                    <RowDefinition ></RowDefinition>
+                    <RowDefinition ></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Background="#e5f1d9" />
+                <Border Grid.Row="1" Background="#d6eefa" />
+                <Border Grid.Row="2" Background="#fedbd6" />
+                <Border Grid.Row="3" Background="#fff1d2" />
+            </Grid>
+
+            <ig:XamDiagram
+                Background="Transparent"
+
+                MinimumZoomLevel="1"
+                MaximumZoomLevel="1"
+                Grid.Column="0" x:Name="xamDiagram" ItemsSource="{Binding Nodes}" ConnectionsSource="{Binding Lines}" 
+                NodeMoved="xamDiagram_NodeMoved"
+                ItemAdding="xamDiagram_ItemAdding" SelectionChanged="xamDiagram_SelectionChanged">
+                <ig:XamDiagram.NodeDefinitions>
+                    <!--TargetType: ノードの型情報
+                        Title: ノード上に表示するテキストプロパティ-->
+                    <ig:NodeDefinition
+                        TargetType="models:Node"
+                        
+                        NodeStyle="{StaticResource NodeStyle}"
+                        />
+                </ig:XamDiagram.NodeDefinitions>
+                    <ig:XamDiagram.ConnectionDefinitions>
+                        <!--TargetType: ノード間をつなぐ線の型情報
+                        StartNodeMemberPath: 始点となるノード
+                        EndNodeMemberPath: 終点となるノード-->
+                        <ig:ConnectionSourceDefinition
+                        TargetType="models:Line"
+                        StartNodeMemberPath="StartNode"
+                        EndNodeMemberPath="EndNode"/>
+                    </ig:XamDiagram.ConnectionDefinitions>
+                    <ig:XamDiagram.Layout>
+                        <!--<ig:GridDiagramLayout/>-->
+                        <local:CustomDiagonalLayout  MaxRows="4" ColumnWidth="200" />
+                    </ig:XamDiagram.Layout>
+            </ig:XamDiagram>
+        <ig:XamDiagramToolbox Grid.Column="1" AllowDrop="True" >
+                <ig:XamDiagramToolbox.Categories>
+                    <ig:DiagramToolboxCategory Name="データソース" >
+                        <ig:DiagramToolboxCategory.Items>
+                            <ig:DiagramToolboxItem Title="データベース" >
+                                <ig:DiagramToolboxItem.Item>
+                                    <ig:DiagramNode Width="40" Height="20"
+                                           x:Name="DBNode"
+
+                                                    DisplayTemplate="{StaticResource NodeDisplayTemplate}"
+                                                    EditTemplate="{StaticResource NodeEditTemplate}"
+                                                    Geometry="{StaticResource DB}"/>
+                                </ig:DiagramToolboxItem.Item>
+                            </ig:DiagramToolboxItem>
+                        </ig:DiagramToolboxCategory.Items>
+                    </ig:DiagramToolboxCategory>
+                    <ig:DiagramToolboxCategory Name="関係性" IsExpanded="True">
+                        <ig:DiagramToolboxCategory.Items>
+                            <ig:DiagramToolboxItem  Title="接続線">
+                                <ig:DiagramToolboxItem.Item>
+                                    <ig:DiagramConnection Width="36" Height="36" StartPosition="0,0"  EndPosition="35,35"  ConnectionType="Straight">
+                                    </ig:DiagramConnection>
+                                </ig:DiagramToolboxItem.Item>
+                            </ig:DiagramToolboxItem>
+                        </ig:DiagramToolboxCategory.Items>
+                    </ig:DiagramToolboxCategory>
+                </ig:XamDiagramToolbox.Categories>
+            </ig:XamDiagramToolbox>
+        </Grid>
+
+    </Grid>
+</Window>
