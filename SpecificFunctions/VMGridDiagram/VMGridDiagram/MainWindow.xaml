@@ -1,0 +1,85 @@
+﻿<Window xmlns:igWPF="http://schemas.infragistics.com/xaml/wpf"  xmlns:ig="http://schemas.infragistics.com/xaml"  x:Class="VMGridDiagram.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VMGridDiagram" xmlns:models="clr-namespace:VMGridDiagram.Models"
+        xmlns:vm="clr-namespace:VMGridDiagram.ViewModels"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <vm:TaskViewModel></vm:TaskViewModel>
+    </Window.DataContext>
+    <Grid>
+        <Grid.Resources>
+            <DataTemplate x:Key="NodeDisplayTemplate">
+                <UserControl VerticalContentAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Name}"></TextBlock>
+                </UserControl>
+            </DataTemplate>
+
+            <DataTemplate x:Key="NodeEditTemplate">
+                <UserControl VerticalContentAlignment="Center">
+                    <TextBox HorizontalAlignment="Center" VerticalAlignment="Center"  Text="{Binding Name}"></TextBox>
+                </UserControl>
+            </DataTemplate>
+
+            <Style x:Key="NodeStyle" TargetType="{x:Type ig:DiagramNode}">
+                <Setter Property="DisplayTemplate" Value="{StaticResource NodeDisplayTemplate}" />
+                <Setter Property="EditTemplate" Value="{StaticResource NodeEditTemplate}" />
+            </Style>
+
+            <Style TargetType="{x:Type ig:DiagramConnection}" x:Key="ConnectionStyle">
+                <Setter Property="ConnectionType" Value="Straight" />
+                <Setter Property="DisplayTemplate" >
+                    <Setter.Value>
+                        <DataTemplate />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="200"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <ig:XamDiagram x:Name="xamDiagram" ItemsSource="{Binding Tasks}" ConnectionsSource="{Binding Tasks}" Grid.Column="0" ItemAdding="XamDiagram_ItemAdding" >
+                <ig:XamDiagram.Layout>
+                    <ig:GridDiagramLayout />
+                </ig:XamDiagram.Layout>
+                <ig:XamDiagram.NodeDefinitions>
+                    <ig:NodeDefinition
+                        KeyMemberPath="Id"
+                        TargetType="{x:Type models:Task}"
+                        NodeStyle="{StaticResource NodeStyle}"
+                        ></ig:NodeDefinition>
+                </ig:XamDiagram.NodeDefinitions>
+                <ig:XamDiagram.ConnectionDefinitions>
+                    <ig:ConnectionSourceDefinition TargetType="{x:Type models:Task}"
+                    StartNodeKeyMemberPath="StartTaskId" EndNodeKeyMemberPath="EndTaskId" ConnectionStyle="{StaticResource ConnectionStyle}" />
+                </ig:XamDiagram.ConnectionDefinitions>
+            </ig:XamDiagram>
+            <ig:XamDiagramToolbox Grid.Column="1" >
+                <ig:XamDiagramToolbox.Categories>
+                    <ig:DiagramToolboxCategory Name="タスク" >
+                        <ig:DiagramToolboxCategory.Items>
+                            <ig:DiagramToolboxItem Title="タスク" x:Name="task">
+                                <ig:DiagramToolboxItem.Item>
+                                    <ig:DiagramNode ShapeType="Rectangle" Height="50" />
+                                </ig:DiagramToolboxItem.Item>
+                            </ig:DiagramToolboxItem>
+                        </ig:DiagramToolboxCategory.Items>
+                    </ig:DiagramToolboxCategory>
+                </ig:XamDiagramToolbox.Categories>
+            </ig:XamDiagramToolbox>
+        </Grid>
+        <Grid Grid.Row="1">
+            <igWPF:XamDataGrid DataSource="{Binding Tasks}" />
+        </Grid>
+    </Grid>
+</Window>
