@@ -1,0 +1,53 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:XamDataChart_ScatterLine"
+        xmlns:ig="http://schemas.infragistics.com/xaml" x:Class="XamDataChart_ScatterLine.MainWindow"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="400" Width="730">
+    <Grid>
+        <!--https://stackoverflow.com/questions/2769291/how-could-i-put-a-border-on-my-grid-control-in-wpf-->
+        <Border BorderBrush="Black" BorderThickness="1" Margin="10">
+            <Grid>
+                <ig:XamDataChart HorizontalAlignment="Left" x:Name="xamDataChart1" Height="300" Width="600" Legend="{Binding ElementName=Legend}" PlotAreaBorderBrush="#FF1D1D1D" PlotAreaBorderThickness="1" RenderTransformOrigin="0.065,0.482"
+                                 >
+                    <ig:XamDataChart.Resources>
+                        <local:BubbleDataSource x:Key="data"/>
+                    </ig:XamDataChart.Resources>
+                    <ig:XamDataChart.PlotAreaBackground>
+                        <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                            <GradientStop Color="#DDDDDD"/>
+                            <GradientStop Color="#FFFFFFFF" Offset="0.25"/>
+                            <GradientStop Color="#FFFFFFFF" Offset="0.75"/>
+                            <GradientStop Color="#DDDDDD" Offset="1"/>
+                        </LinearGradientBrush>
+                    </ig:XamDataChart.PlotAreaBackground>
+                    <ig:XamDataChart.Axes>
+                        <ig:NumericXAxis x:Name="XAxis" MinimumValue="0" MaximumValue="9" Interval="0.5">
+                        </ig:NumericXAxis>
+                        <ig:NumericYAxis x:Name="YAxis" MinimumValue="6.0" MaximumValue="9" Interval="0.5">
+                        </ig:NumericYAxis>
+                    </ig:XamDataChart.Axes>
+                    <ig:XamDataChart.Series>
+                        <ig:ScatterLineSeries XAxis="{Binding ElementName=XAxis}"
+                                 YAxis="{Binding ElementName=YAxis}"
+                                 ItemsSource="{StaticResource data}"
+                                 YMemberPath="YValue"
+                                 Title="判定データ"
+                                 XMemberPath="XValue"
+                                 Outline="Gray" 
+                                 LegendItemBadgeShape="Square"
+                                 >
+                        </ig:ScatterLineSeries>
+                    </ig:XamDataChart.Series>
+                </ig:XamDataChart>
+                <ig:Legend x:Name="Legend"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center">
+                </ig:Legend>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
